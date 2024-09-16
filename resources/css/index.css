@@ -1,0 +1,58 @@
+/* Import Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
+
+/* Apply the Poppins font to the whole document */
+body {
+	font-family: "Poppins", sans-serif;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+/* Basic styling for the form */
+form {
+	margin: 20px;
+	padding: 20px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background-color: #f9f9f9;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 600;
+}
+
+input[type="file"] {
+	margin-bottom: 12px;
+}
+
+select {
+	margin-bottom: 12px;
+	padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+button {
+	background-color: #007bff;
+	color: #fff;
+	border: none;
+	padding: 10px 20px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+button:hover {
+	background-color: #0056b3;
+}
+
+/* Basic styling for the canvas */
+canvas {
+	display: block;
+	margin: 20px auto;
+	border: 1px solid #ddd;
+	background-color: #fff;
+}
