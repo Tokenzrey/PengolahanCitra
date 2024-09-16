@@ -29,3 +29,10 @@ This project provides a web application that allows users to upload an image, ap
    ```bash
    git clone https://github.com/Tokenzrey/PengolahanCitra.git
    ```
+    
+2. **Navigate to the project directory:**
+   ```bash
+   cd filtering-image
+   ```
+
+3. Open the `index.html` file in your web browser: You can simply double-click the index.html file, or open it through your browser's File menu.
