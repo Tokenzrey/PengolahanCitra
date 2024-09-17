@@ -25,54 +25,58 @@ export function applyGrayscaleFilter(imageData) {
 
 export function applyMedianFilter(imageData, width, height) {
 	const data = imageData.data;
-	const windowSize = 3;
-	const halfWindow = Math.floor(windowSize / 2);
+	let windowSize = 3;
 	const result = new Uint8ClampedArray(data);
+	console.log(data);
+	const channels = data.length / (width * height);
+	const filterWindow = [];
+	const limit = (windowSize - 1) / 2;
 
-	// Helper function to get pixel data with boundary checks
-	function getPixel(x, y) {
-		// Handle out-of-bounds by reflecting the pixel location
-		const clampedX = Math.min(Math.max(x, 0), width - 1);
-		const clampedY = Math.min(Math.max(y, 0), height - 1);
-		const index = (clampedY * width + clampedX) * 4;
-		return [data[index], data[index + 1], data[index + 2]];
-	}
-
-	for (let y = 0; y < height; y++) {
-		for (let x = 0; x < width; x++) {
-			const reds = [];
-			const greens = [];
-			const blues = [];
-
-			for (let j = -halfWindow; j <= halfWindow; j++) {
-				for (let i = -halfWindow; i <= halfWindow; i++) {
-					const [r, g, b] = getPixel(x + i, y + j);
-					reds.push(r);
-					greens.push(g);
-					blues.push(b);
-				}
-			}
-
-			// Sort and find median
-			reds.sort((a, b) => a - b);
-			greens.sort((a, b) => a - b);
-			blues.sort((a, b) => a - b);
-
-			const medianRed = reds[Math.floor(reds.length / 2)];
-			const medianGreen = greens[Math.floor(greens.length / 2)];
-			const medianBlue = blues[Math.floor(blues.length / 2)];
-
-			const pixelIndex = (y * width + x) * 4;
-			result[pixelIndex] = medianRed;
-			result[pixelIndex + 1] = medianGreen;
-			result[pixelIndex + 2] = medianBlue;
-			result[pixelIndex + 3] = data[pixelIndex + 3]; // Alpha remains unchanged
+	for (let i = limit * -1; i < limit + 1; i += 1) {
+		for (let j = limit * -1; j < limit + 1; j += 1) {
+		filterWindow.push([i, j]);
 		}
 	}
 
-	// Update image data with filtered results
-	imageData.data.set(result);
+	for (let col = 0; col < width; col += 1) {
+		for (let row = 0; row < height; row += 1) {
+		const index = (row * width + col) * channels;
+		const arrRed = [];
+		const arrGreen = [];
+		const arrBlue = [];
 
+		for (let z = 0; z < filterWindow.length; z += 1) {
+			const i = ((row + filterWindow[z][0]) * width + (col + filterWindow[z][1])) * channels;
+
+			if (i<0){
+				arrRed.push(0);
+				arrGreen.push(0);
+				arrBlue.push(0);
+			}
+
+			arrRed.push(data[i]);
+			arrGreen.push(data[i+1]);
+			arrBlue.push(data[i+2]);
+		}
+
+		const redSorted = arrRed.sort((a, b) => a - b);
+		const greenSorted = arrGreen.sort((a, b) => a - b);
+		const blueSorted = arrBlue.sort((a, b) => a - b);
+
+		const medianRed = redSorted[Math.floor(redSorted.length / 2)];
+		const medianGreen = greenSorted[Math.floor(redSorted.length / 2)];
+		const medianBlue = blueSorted[Math.floor(redSorted.length / 2)];
+
+		result[index] = medianRed;
+		result[index + 1] = medianGreen;
+		result[index + 2] = medianBlue;
+
+		if (channels === 4) result[index + 3] = 255;
+		}
+	}
+
+	imageData.data.set(result);
+	console.log(imageData);
 	return imageData;
 }
 

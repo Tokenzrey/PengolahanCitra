@@ -71,7 +71,7 @@ export function applyFilter() {
 				imageData = applyInvertFilter(imageData);
 				break;
 			case "median":
-				imageData = applyMedianFilter(imageData);
+				imageData = applyMedianFilter(imageData, canvasFiltered.width, canvasFiltered.height);
 				break;
 			case "mask":
 				imageData = applyUnsharpMask(
