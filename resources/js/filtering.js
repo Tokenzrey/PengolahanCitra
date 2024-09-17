@@ -1,7 +1,12 @@
+import {
+	applyGrayscaleFilter,
+	applyInvertFilter,
+	applyMedianFilter,
+} from "./enhancement.js";
+
 document
 	.getElementById("imageInput")
 	.addEventListener("change", handleImageUpload);
-document.getElementById("filterSelect").addEventListener("change", applyFilter);
 
 let img = new Image();
 let canvasOri = document.getElementById("imageCanvasOriginal");
@@ -39,9 +44,11 @@ function handleImageUpload(event) {
 	}
 }
 
-function applyFilter() {
-	const filter = document.getElementById("filterSelect").value;
-	ctxFiltered.drawImage(img, 0, 0); // Redraw the image to clear previous filters
+// Fungsi untuk menerapkan pipeline filter berdasarkan urutan select
+export function applyFilter() {
+	const selects = document.querySelectorAll("#selectFilter select");
+	// Mulai dari gambar asli
+	ctxFiltered.drawImage(img, 0, 0); // Redraw the original image
 
 	let imageData = ctxFiltered.getImageData(
 		0,
@@ -49,22 +56,24 @@ function applyFilter() {
 		canvasFiltered.width,
 		canvasFiltered.height
 	);
-	let data = imageData.data;
 
-	if (filter === "grayscale") {
-		for (let i = 0; i < data.length; i += 4) {
-			let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-			data[i] = avg; // Red
-			data[i + 1] = avg; // Green
-			data[i + 2] = avg; // Blue
+	// Terapkan filter secara berurutan sesuai dengan select
+	selects.forEach((select) => {
+		const filter = select.value;
+
+		// Terapkan filter berdasarkan pilihan user
+		if (filter === "grayscale") {
+			imageData = applyGrayscaleFilter(imageData);
+		} else if (filter === "invert") {
+			imageData = applyInvertFilter(imageData);
+		} else if (filter === "median") {
+			imageData = applyMedianFilter(
+				imageData,
+				canvasFiltered.width,
+				canvasFiltered.height
+			);
 		}
-	} else if (filter === "invert") {
-		for (let i = 0; i < data.length; i += 4) {
-			data[i] = 255 - data[i]; // Red
-			data[i + 1] = 255 - data[i + 1]; // Green
-			data[i + 2] = 255 - data[i + 2]; // Blue
-		}
-	}
+	});
 
 	// Terapkan perubahan data gambar pada canvas filtered
 	ctxFiltered.putImageData(imageData, 0, 0);

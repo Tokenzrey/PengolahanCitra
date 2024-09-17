@@ -14,20 +14,24 @@
 			<label for="imageInput">Upload Image:</label>
 			<input type="file" id="imageInput" accept="image/*" />
 
-			<label for="filterSelect">Select Filter:</label>
-			<select id="filterSelect" class="mr-5">
-				<option value="none">None</option>
-				<option value="grayscale">Grayscale</option>
-				<option value="invert">Invert</option>
-				<!-- Add more filters as needed -->
-			</select>
+			<label for="selectFilter">Select Filter:</label>
+			<div id="selectFilter"></div>
 
-			<button
-				type="button"
-				onclick="applyFilter()"
-				class="button inline-flex items-center justify-center rounded-2xl focus:outline-none focus-visible:ring focus-visible:ring-primary-info-main min-h-[48px] px-5 py-2 text-base border-2 border-typo-outline-2 text-white font-medium bg-cyan-400 text-typo-main hover:bg-cyan-300 hover:text-typo-white active:bg-primary-cyan-500 active:text-typo-main">
-				Apply Filter
-			</button>
+			<div class="flex gap-4">
+				<button
+					type="button"
+					onclick="import('./js/select.js').then(module => module.addFilter())"
+					class="mt-4 button inline-flex items-center justify-center rounded-2xl focus:outline-none focus-visible:ring focus-visible:ring-primary-info-main min-h-[48px] px-5 py-2 text-base border-2 border-typo-outline-2 text-white font-medium bg-cyan-400 text-typo-main hover:bg-cyan-300 hover:text-typo-white active:bg-primary-cyan-500 active:text-typo-main">
+					add Filter
+				</button>
+
+				<button
+					type="button"
+					onclick="import('./js/select.js').then(module => module.deleteFilter())"
+					class="mt-4 button inline-flex items-center justify-center rounded-2xl focus:outline-none focus-visible:ring focus-visible:ring-primary-info-main min-h-[48px] px-5 py-2 text-base border-2 border-typo-outline-2 text-white font-medium bg-rose-400 text-typo-main hover:bg-rose-300 hover:text-typo-white active:bg-primary-rose-500 active:text-typo-main">
+					delete Filter
+				</button>
+			</div>
 		</form>
 
 		<section class="relative mb-20 hidden" id="containerComparasion">
@@ -47,7 +51,9 @@
 				<div
 					class="image-comparison__image-wrapper image-comparison__image-wrapper--overlay absolute"
 					data-image-comparison-overlay="">
-					<canvas id="imageCanvasOriginal" class="image-comparison__image z-10 m-0">
+					<canvas
+						id="imageCanvasOriginal"
+						class="image-comparison__image z-10 m-0">
 					</canvas>
 				</div>
 
@@ -78,7 +84,8 @@
 		</section>
 
 		<!-- Link to JavaScript file -->
-		<script src="./js/filtering.js"></script>
+		<script type="module" src="./js/select.js"></script>
+		<script type="module" src="./js/filtering.js"></script>
 		<script src="./js/comparasion.js"></script>
 	</body>
 </html>
