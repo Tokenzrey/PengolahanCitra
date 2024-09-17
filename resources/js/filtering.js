@@ -2,6 +2,7 @@ import {
 	applyGrayscaleFilter,
 	applyInvertFilter,
 	applyMedianFilter,
+	applyUnsharpMask,
 } from "./enhancement.js";
 
 document
@@ -61,17 +62,26 @@ export function applyFilter() {
 	selects.forEach((select) => {
 		const filter = select.value;
 
-		// Terapkan filter berdasarkan pilihan user
-		if (filter === "grayscale") {
-			imageData = applyGrayscaleFilter(imageData);
-		} else if (filter === "invert") {
-			imageData = applyInvertFilter(imageData);
-		} else if (filter === "median") {
-			imageData = applyMedianFilter(
-				imageData,
-				canvasFiltered.width,
-				canvasFiltered.height
-			);
+		// Gunakan switch case untuk memilih filter
+		switch (filter) {
+			case "grayscale":
+				imageData = applyGrayscaleFilter(imageData);
+				break;
+			case "invert":
+				imageData = applyInvertFilter(imageData);
+				break;
+			case "median":
+				imageData = applyMedianFilter(imageData);
+				break;
+			case "mask":
+				imageData = applyUnsharpMask(
+					imageData,
+					canvasFiltered.width,
+					canvasFiltered.height
+				);
+				break;
+			default:
+				console.warn(`Filter "${filter}" tidak dikenal.`);
 		}
 	});
 

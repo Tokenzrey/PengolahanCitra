@@ -51,6 +51,7 @@ function createFilterSelect(container, index) {
 		{ value: "grayscale", text: "Grayscale" },
 		{ value: "invert", text: "Invert" },
 		{ value: "median", text: "Median Filter" },
+		{ value: "mask", text: "unsharp mask" },
 		// Tambahkan opsi lain jika diperlukan
 	];
 

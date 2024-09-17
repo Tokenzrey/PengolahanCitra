@@ -25,54 +25,126 @@ export function applyGrayscaleFilter(imageData) {
 
 export function applyMedianFilter(imageData, width, height) {
 	const data = imageData.data;
-	const windowSize = 3; // Ukuran jendela (3x3)
+	const windowSize = 3;
 	const halfWindow = Math.floor(windowSize / 2);
-	const result = new Uint8ClampedArray(data); // Hasilnya akan disimpan di array baru
+	const result = new Uint8ClampedArray(data);
 
-	// Loop melalui setiap piksel
-	for (let y = halfWindow; y < height - halfWindow; y++) {
-		for (let x = halfWindow; x < width - halfWindow; x++) {
-			// Buat array untuk menyimpan tetangga warna masing-masing channel
+	// Helper function to get pixel data with boundary checks
+	function getPixel(x, y) {
+		// Handle out-of-bounds by reflecting the pixel location
+		const clampedX = Math.min(Math.max(x, 0), width - 1);
+		const clampedY = Math.min(Math.max(y, 0), height - 1);
+		const index = (clampedY * width + clampedX) * 4;
+		return [data[index], data[index + 1], data[index + 2]];
+	}
+
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
 			const reds = [];
 			const greens = [];
 			const blues = [];
 
-			// Ambil semua piksel di sekitar jendela 3x3
 			for (let j = -halfWindow; j <= halfWindow; j++) {
 				for (let i = -halfWindow; i <= halfWindow; i++) {
-					const pixelIndex = ((y + j) * width + (x + i)) * 4;
-					const red = data[pixelIndex];
-					const green = data[pixelIndex + 1];
-					const blue = data[pixelIndex + 2];
-
-					// Tambahkan nilai masing-masing channel ke dalam array tetangga
-					reds.push(red);
-					greens.push(green);
-					blues.push(blue);
+					const [r, g, b] = getPixel(x + i, y + j);
+					reds.push(r);
+					greens.push(g);
+					blues.push(b);
 				}
 			}
 
-			// Urutkan nilai intensitas tetangga untuk setiap channel
+			// Sort and find median
 			reds.sort((a, b) => a - b);
 			greens.sort((a, b) => a - b);
 			blues.sort((a, b) => a - b);
 
-			// Ambil nilai median untuk setiap channel
 			const medianRed = reds[Math.floor(reds.length / 2)];
 			const medianGreen = greens[Math.floor(greens.length / 2)];
 			const medianBlue = blues[Math.floor(blues.length / 2)];
 
-			// Setel piksel di posisi tengah jendela ke nilai median
 			const pixelIndex = (y * width + x) * 4;
-			result[pixelIndex] = medianRed; // Red
-			result[pixelIndex + 1] = medianGreen; // Green
-			result[pixelIndex + 2] = medianBlue; // Blue
-			result[pixelIndex + 3] = data[pixelIndex + 3]; // Alpha tetap sama
+			result[pixelIndex] = medianRed;
+			result[pixelIndex + 1] = medianGreen;
+			result[pixelIndex + 2] = medianBlue;
+			result[pixelIndex + 3] = data[pixelIndex + 3]; // Alpha remains unchanged
 		}
 	}
 
-	// Update image data dengan hasil yang sudah difilter
+	// Update image data with filtered results
 	imageData.data.set(result);
 
+	return imageData;
+}
+
+export function applyUnsharpMask(
+	imageData,
+	width,
+	height,
+	amount = 1,
+	radius = 1
+) {
+	const data = imageData.data;
+	const result = new Uint8ClampedArray(data);
+	const radius2 = radius * radius;
+
+	// Apply a simplified Gaussian blur for the unsharp mask
+	function gaussianBlur(x, y) {
+		let sum = [0, 0, 0];
+		let weightSum = 0;
+
+		// Gaussian kernel weights (simplified)
+		const kernelSize = 2 * radius + 1;
+		const kernel = [];
+
+		for (let j = -radius; j <= radius; j++) {
+			for (let i = -radius; i <= radius; i++) {
+				const dist = Math.sqrt(i * i + j * j);
+				if (dist <= radius) {
+					const weight = Math.exp((-dist * dist) / (2 * radius2));
+					kernel.push({ dx: i, dy: j, weight });
+					weightSum += weight;
+				}
+			}
+		}
+
+		// Apply weighted average for blur
+		kernel.forEach(({ dx, dy, weight }) => {
+			const nx = Math.min(Math.max(x + dx, 0), width - 1);
+			const ny = Math.min(Math.max(y + dy, 0), height - 1);
+			const idx = (ny * width + nx) * 4;
+			sum[0] += data[idx] * weight;
+			sum[1] += data[idx + 1] * weight;
+			sum[2] += data[idx + 2] * weight;
+		});
+
+		return [sum[0] / weightSum, sum[1] / weightSum, sum[2] / weightSum];
+	}
+
+	// Perform unsharp masking
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			const idx = (y * width + x) * 4;
+
+			// Apply Gaussian blur
+			const [blurR, blurG, blurB] = gaussianBlur(x, y);
+
+			// Unsharp mask formula: original + amount * (original - blurred)
+			result[idx] = Math.min(
+				255,
+				Math.max(0, data[idx] + amount * (data[idx] - blurR))
+			);
+			result[idx + 1] = Math.min(
+				255,
+				Math.max(0, data[idx + 1] + amount * (data[idx + 1] - blurG))
+			);
+			result[idx + 2] = Math.min(
+				255,
+				Math.max(0, data[idx + 2] + amount * (data[idx + 2] - blurB))
+			);
+			result[idx + 3] = data[idx + 3]; // Alpha remains unchanged
+		}
+	}
+
+	imageData.data.set(result);
 	return imageData;
 }
