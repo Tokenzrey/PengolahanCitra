@@ -1,10 +1,3 @@
-import {
-	applyGrayscaleFilter,
-	applyInvertFilter,
-	applyMedianFilter,
-	applyUnsharpMask,
-} from "./enhancement.js";
-
 document
 	.getElementById("imageInput")
 	.addEventListener("change", handleImageUpload);
@@ -45,46 +38,60 @@ function handleImageUpload(event) {
 	}
 }
 
-// Fungsi untuk menerapkan pipeline filter berdasarkan urutan select
-export function applyFilter() {
+// Importing this function implies it's declared in another module
+export async function applyFilter() {
+	const imageInput = document.getElementById("imageInput").files[0];
 	const selects = document.querySelectorAll("#selectFilter select");
-	// Mulai dari gambar asli
-	ctxFiltered.drawImage(img, 0, 0); // Redraw the original image
 
-	let imageData = ctxFiltered.getImageData(
-		0,
-		0,
-		canvasFiltered.width,
-		canvasFiltered.height
-	);
+	// Creating filters as an array of objects with 'name' and 'params'
+	const filters = Array.from(selects)
+		.map((select) => ({
+			name: select.value,
+			params: {} // You can add actual params here based on filter type if needed
+		}))
+		.filter((filter) => filter.name !== "none");
 
-	// Terapkan filter secara berurutan sesuai dengan select
-	selects.forEach((select) => {
-		const filter = select.value;
+	const formData = new FormData();
+	formData.append("image", imageInput);
+	formData.append("filters", JSON.stringify(filters));
 
-		// Gunakan switch case untuk memilih filter
-		switch (filter) {
-			case "grayscale":
-				imageData = applyGrayscaleFilter(imageData);
-				break;
-			case "invert":
-				imageData = applyInvertFilter(imageData);
-				break;
-			case "median":
-				imageData = applyMedianFilter(imageData, canvasFiltered.width, canvasFiltered.height);
-				break;
-			case "mask":
-				imageData = applyUnsharpMask(
-					imageData,
-					canvasFiltered.width,
-					canvasFiltered.height
-				);
-				break;
-			default:
-				console.warn(`Filter "${filter}" tidak dikenal.`);
+	ctxFiltered.drawImage(img, 0, 0);
+
+	selects.forEach((select) => (select.disabled = true));
+
+	if (!imageInput || filters.length === 0) {
+		console.error("Image or filters are missing");
+		return; // Exit if there's no image or filters
+	}
+
+	try {
+		const response = await fetch("http://localhost:5000/enhancement", {
+			method: "POST",
+			body: formData
+		});
+		if (!response.ok) {
+			throw new Error("Server Error");
 		}
-	});
+		const result = await response.json();
+		displayFilteredImage(result.data);
+	} catch (error) {
+		console.error("Network Error:", error);
+	} finally {
+		selects.forEach((select) => (select.disabled = false));
+	}
+}
 
-	// Terapkan perubahan data gambar pada canvas filtered
-	ctxFiltered.putImageData(imageData, 0, 0);
+function displayFilteredImage(imageBase64) {
+	const image = new Image();
+	image.onload = () => {
+		ctxFiltered.clearRect(0, 0, canvasFiltered.width, canvasFiltered.height);
+		ctxFiltered.drawImage(
+			image,
+			0,
+			0,
+			canvasFiltered.width,
+			canvasFiltered.height
+		);
+	};
+	image.src = `data:image/jpeg;base64,${imageBase64}`;
 }
