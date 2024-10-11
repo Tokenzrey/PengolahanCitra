@@ -69,8 +69,11 @@ function createFilterSelect(container, index) {
 		{ value: "morphological", text: "Morphological Operations" },
 		{ value: "edge_detection", text: "Edge Detection" },
 		{ value: "ideal_lpf", text: "Ideal Low Pass Filter" },
+		{ value: "ideal_hpf", text: "Ideal High Pass Filter" },
 		{ value: "butterworth_lpf", text: "Butterworth Low Pass Filter" },
+		{ value: "butterworth_hpf", text: "Butterworth High Pass Filter" },
 		{ value: "gaussian_lpf", text: "Gaussian Low Pass Filter" },
+		{ value: "gaussian_hpf", text: "Gaussian High Pass Filter" },
 		{ value: "notch_filter", text: "notch filter" },
 		{ value: "homomorphic_filter", text: "homomorphic filter" },
 		// Tambahkan opsi lain jika diperlukan

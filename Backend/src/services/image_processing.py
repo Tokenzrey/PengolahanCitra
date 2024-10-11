@@ -31,33 +31,41 @@ def handle_filter(image, filter_name, params):
         "grayscale": grayscale,
         "invert": invert,
         "median": lambda img: cv2.medianBlur(img, 5),
-        "brightness": adjust_brightness,
+        "brightness": lambda img: adjust_brightness(img, params.get('value', 30)),
         "histogram_eq": histogram_equalization,
         "clahe": apply_clahe,
         "ahe": apply_ahe,
         "regional_contrast": regional_contrast,
-        "contrast_adjustment": contrast_adjustment,
+        "contrast_adjustment": lambda img: contrast_adjustment(img, params.get('alpha', 1.5), params.get('beta', 0)),
         "gamma_correction": lambda img: apply_gamma_correction(img, params.get('gamma', 0.5)),
         "thresholding": lambda img: thresholding(img, params.get('thresh', 128)),
         "linear_stretch": linear_stretch,
         "log_transform": apply_log_transform,
-        "low_pass": lambda img: apply_frequency_domain_filters(img, "low_pass", params),
-        "high_pass": lambda img: apply_frequency_domain_filters(img, "high_pass", params),
+        "low_pass": lambda img: apply_frequency_domain_filters(img, "low_pass", {"cutoff": params.get('cutoff', 50)}),
+        "high_pass": lambda img: apply_frequency_domain_filters(img, "high_pass", {"cutoff": params.get('cutoff', 50)}),
         "sharpen": sharpen,
         "edge_enhancement": edge_enhancement,
         "smoothing": lambda img: cv2.GaussianBlur(img, (5, 5), 0),
         "morphological": morphological,
         "edge_detection": lambda img: cv2.Canny(img, params.get('lower', 100), params.get('upper', 200)),
-        "ideal_lpf": lambda img, params: apply_frequency_domain_filters(img, "ideal_lpf", params),
-        "butterworth_lpf": lambda img, params: apply_frequency_domain_filters(img, "butterworth_lpf", params),
-        "gaussian_lpf": lambda img, params: apply_frequency_domain_filters(img, "gaussian_lpf", params),
-        "ideal_hpf": lambda img, params: apply_frequency_domain_filters(img, "ideal_hpf", params),
-        "butterworth_hpf": lambda img, params: apply_frequency_domain_filters(img, "butterworth_hpf", params),
-        "gaussian_hpf": lambda img, params: apply_frequency_domain_filters(img, "gaussian_hpf", params),
-        "notch_filter": lambda img: apply_frequency_domain_filters(img, "notch", params),
-        "homomorphic_filter": lambda img: apply_frequency_domain_filters(img, "homomorphic", params)
+        "ideal_lpf": lambda img: apply_frequency_domain_filters(img, "ideal_lpf", {"cutoff": params.get('cutoff', 50)}),
+        "butterworth_lpf": lambda img: apply_frequency_domain_filters(img, "butterworth_lpf", {"cutoff": params.get('cutoff', 50), "order": params.get('order', 2)}),
+        "gaussian_lpf": lambda img: apply_frequency_domain_filters(img, "gaussian_lpf", {"cutoff": params.get('cutoff', 50)}),
+        "ideal_hpf": lambda img: apply_frequency_domain_filters(img, "ideal_hpf", {"cutoff": params.get('cutoff', 50)}),
+        "butterworth_hpf": lambda img: apply_frequency_domain_filters(img, "butterworth_hpf", {"cutoff": params.get('cutoff', 50), "order": params.get('order', 2)}),
+        "gaussian_hpf": lambda img: apply_frequency_domain_filters(img, "gaussian_hpf", {"cutoff": params.get('cutoff', 50)}),
+        "notch_filter": lambda img: apply_frequency_domain_filters(img, "notch", {"cutoff": params.get('cutoff', 50), "notch_centers": params.get('notch_centers', [(10, 20), (-10, -20)])}),
+        "homomorphic_filter": lambda img: apply_frequency_domain_filters(img, "homomorphic", {
+            "gammaL": params.get('gammaL', 0.5), 
+            "gammaH": params.get('gammaH', 1.5), 
+            "d0": params.get('d0', 30)
+        })
     }
+
+    # Get the function corresponding to the filter name
     function = filter_functions.get(filter_name, lambda img: img)
+    
+    # Call the function, passing the image and params where necessary
     return function(image)
 
 # Define individual filter functions
