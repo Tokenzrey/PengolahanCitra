@@ -141,85 +141,81 @@ def morphological(img):
     return cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
 
 def apply_frequency_domain_filters(img, filter_type, params):
-    cutoff = params.get('cutoff', 50)
-    order = params.get('order', 1)  # Hanya digunakan untuk Butterworth
-    notch_centers = params.get('notch_centers', [])  # Digunakan untuk Notch Filter
-    gammaL = params.get('gammaL', 0.5)  # Untuk Homomorphic Filter
-    gammaH = params.get('gammaH', 1.5)  # Untuk Homomorphic Filter
-    d0 = params.get('d0', 30)  # Untuk Homomorphic Filter
-    channels = cv2.split(img)
-    filtered_channels = []
+    # Handle grayscale and color images
+    if len(img.shape) == 2:
+        # Grayscale image
+        return process_channel(img, filter_type, params)
+    else:
+        # Color image: process each channel separately
+        channels = cv2.split(img)
+        filtered_channels = [process_channel(channel, filter_type, params) for channel in channels]
+        return cv2.merge(filtered_channels)
 
-    for channel in channels:
-        filtered_channel = process_channel(channel, filter_type, cutoff, order, notch_centers, gammaL, gammaH, d0)
-        filtered_channels.append(filtered_channel)
-
-    # Gabungkan kembali channel yang telah difilter
-    img_filtered = cv2.merge(filtered_channels)
-    return img_filtered
-
-def process_channel(channel, filter_type, cutoff, order, notch_centers, gammaL, gammaH, d0):
-    # FFT transform
+def process_channel(channel, filter_type, params):
+    # FFT transformation
     dft = fft2(channel)
     dft_shift = fftshift(dft)
 
-    # Buat mask untuk filter frekuensi
-    if filter_type in ["notch", "homomorphic"]:
-        mask = create_special_frequency_filter(channel.shape, filter_type, notch_centers, gammaL, gammaH, d0, cutoff)
-    else:
-        mask = create_frequency_filter(channel.shape, filter_type, cutoff, order)
+    # Generate filter mask
+    mask = create_frequency_filter(channel.shape, filter_type, params)
 
-    # Terapkan mask dan inverse FFT
-    f_ishift = ifftshift(dft_shift * mask)
-    channel_filtered = np.real(ifft2(f_ishift))
+    # Apply mask and inverse FFT
+    filtered_dft_shift = dft_shift * mask
+    filtered_channel = np.real(ifft2(ifftshift(filtered_dft_shift)))
 
-    # Normalisasi hasil ke rentang 0-255
-    channel_filtered = np.clip(channel_filtered, 0, 255)
-    return np.uint8(channel_filtered)
+    # Normalize the result to range [0, 255]
+    filtered_channel = np.clip(filtered_channel, 0, 255)
+    return np.uint8(filtered_channel)
 
-def create_frequency_filter(shape, filter_type, cutoff, order):
+def create_frequency_filter(shape, filter_type, params):
     rows, cols = shape
     center_row, center_col = rows // 2, cols // 2
-    mask = np.zeros((rows, cols), dtype=np.float32)
+    mask = np.ones((rows, cols), dtype=np.float32)
+
+    cutoff = params.get('cutoff', 50)
+    order = params.get('order', 2)  # Only used for Butterworth filters
+    notch_centers = params.get('notch_centers', [])
+    gammaL = params.get('gammaL', 0.5)
+    gammaH = params.get('gammaH', 1.5)
+    d0 = params.get('d0', 30)
 
     for u in range(rows):
         for v in range(cols):
             distance = np.sqrt((u - center_row) ** 2 + (v - center_col) ** 2)
 
+            # Ideal Low-Pass Filter (ILPF)
             if filter_type == "ideal_lpf":
                 mask[u, v] = 1 if distance <= cutoff else 0
-            elif filter_type == "ideal_hpf":
-                mask[u, v] = 0 if distance <= cutoff else 1
+
+            # Butterworth Low-Pass Filter (BLPF)
             elif filter_type == "butterworth_lpf":
                 mask[u, v] = 1 / (1 + (distance / cutoff) ** (2 * order))
-            elif filter_type == "butterworth_hpf":
-                mask[u, v] = 1 / (1 + (cutoff / (distance + 1e-5)) ** (2 * order))  # Hindari pembagian dengan nol
+
+            # Gaussian Low-Pass Filter (GLPF)
             elif filter_type == "gaussian_lpf":
                 mask[u, v] = np.exp(-(distance ** 2) / (2 * (cutoff ** 2)))
+
+            # Ideal High-Pass Filter (IHPF)
+            elif filter_type == "ideal_hpf":
+                mask[u, v] = 0 if distance <= cutoff else 1
+
+            # Butterworth High-Pass Filter (BHPF)
+            elif filter_type == "butterworth_hpf":
+                mask[u, v] = 1 - 1 / (1 + (distance / cutoff) ** (2 * order))
+
+            # Gaussian High-Pass Filter (GHPF)
             elif filter_type == "gaussian_hpf":
                 mask[u, v] = 1 - np.exp(-(distance ** 2) / (2 * (cutoff ** 2)))
 
-    return mask
-
-def create_special_frequency_filter(shape, filter_type, notch_centers, gammaL, gammaH, d0, cutoff):
-    rows, cols = shape
-    center_row, center_col = rows // 2, cols // 2
-    mask = np.ones((rows, cols), dtype=np.float32)
-
-    if filter_type == "notch":
-        # Buat Notch Filter
-        for (u0, v0) in notch_centers:
-            for u in range(rows):
-                for v in range(cols):
+            # Notch Filter (band reject filter)
+            elif filter_type == "notch":
+                for (u0, v0) in notch_centers:
                     d1 = np.sqrt((u - (center_row + u0)) ** 2 + (v - (center_col + v0)) ** 2)
                     d2 = np.sqrt((u - (center_row - u0)) ** 2 + (v - (center_col - v0)) ** 2)
-                    mask[u, v] *= (1 / (1 + (cutoff / (d1 + 1e-5)) ** (2))) * (1 / (1 + (cutoff / (d2 + 1e-5)) ** (2)))
-    
-    elif filter_type == "homomorphic":
-        # Buat Homomorphic Filter
-        for u in range(rows):
-            for v in range(cols):
-                distance = np.sqrt((u - center_row) ** 2 + (v - center_col) ** 2)
+                    mask[u, v] *= (1 / (1 + (cutoff / (d1 + 1e-5)) ** (2 * order))) * (1 / (1 + (cutoff / (d2 + 1e-5)) ** (2 * order)))
+
+            # Homomorphic Filter (frequency domain filter to enhance contrast)
+            elif filter_type == "homomorphic":
                 mask[u, v] = (gammaH - gammaL) * (1 - np.exp(-(distance ** 2) / (2 * (d0 ** 2)))) + gammaL
 
     return mask
