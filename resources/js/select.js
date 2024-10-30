@@ -66,6 +66,8 @@ function createFilterSelect(container, index) {
 		{ value: "smoothing", text: "Smoothing" },
 		{ value: "morphological", text: "Morphological Operations" },
 		{ value: "edge_detection", text: "Edge Detection" },
+
+		// FTT
 		{ value: "ideal_lpf", text: "Ideal Low Pass Filter" },
 		{ value: "ideal_hpf", text: "Ideal High Pass Filter" },
 		{ value: "butterworth_lpf", text: "Butterworth Low Pass Filter" },

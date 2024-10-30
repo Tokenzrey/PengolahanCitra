@@ -138,6 +138,11 @@ def morphological(img):
     kernel = np.ones((5, 5), np.uint8)
     return cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
 
+
+
+
+
+# FTT
 def apply_frequency_domain_filters(img, filter_type, params):
     # Handle grayscale and color images
     if len(img.shape) == 2:
