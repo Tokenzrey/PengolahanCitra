@@ -61,8 +61,6 @@ function createFilterSelect(container, index) {
 		{ value: "thresholding", text: "Thresholding" },
 		{ value: "linear_stretch", text: "Linear Stretch" },
 		{ value: "log_transform", text: "Log Transform" },
-		{ value: "low_pass", text: "Low Pass Filter" },
-		{ value: "high_pass", text: "High Pass Filter" },
 		{ value: "sharpen", text: "Sharpen" },
 		{ value: "edge_enhancement", text: "Edge Enhancement" },
 		{ value: "smoothing", text: "Smoothing" },

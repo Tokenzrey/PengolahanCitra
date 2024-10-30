@@ -41,8 +41,6 @@ def handle_filter(image, filter_name, params):
         "thresholding": lambda img: thresholding(img, params.get('thresh', 128)),
         "linear_stretch": linear_stretch,
         "log_transform": apply_log_transform,
-        "low_pass": lambda img: apply_frequency_domain_filters(img, "low_pass", {"cutoff": params.get('cutoff', 50)}),
-        "high_pass": lambda img: apply_frequency_domain_filters(img, "high_pass", {"cutoff": params.get('cutoff', 50)}),
         "sharpen": sharpen,
         "edge_enhancement": edge_enhancement,
         "smoothing": lambda img: cv2.GaussianBlur(img, (5, 5), 0),
