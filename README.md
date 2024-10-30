@@ -1,3 +1,11 @@
+### Kelompok 
+|    NRP     |      Name      |
+| :--------: | :------------: |
+| 5025221052 | Muhammad Syarif Hidayatullah |
+| 5025221038 | Rafli Syahputra Pane |
+| 5025221017 | Valentino Reswara Ajiputra |
+
+
 # Filtering Image With Spatial and Frequency
 
 ## Description
