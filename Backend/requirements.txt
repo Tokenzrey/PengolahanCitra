@@ -1,0 +1,11 @@
+Flask[async]
+Flask-RESTful
+Flask-Cors
+fastapi[all]
+uvicorn
+opencv-python-headless
+numpy
+python-dotenv
+Pillow
+gunicorn 
+gevent

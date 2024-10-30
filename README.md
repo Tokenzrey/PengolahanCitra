@@ -40,7 +40,32 @@ This project provides a web application that allows users to upload an image, ap
     
 2. **Navigate to the project directory:**
    ```bash
-   cd filtering-image
+   cd resources
    ```
 
-3. Open the `index.html` file in your web browser: You can simply double-click the index.html file, or open it through your browser's File menu.
+3. Open the `index.html` file in your web browser: use extennsion `open live with server`.
+4. Navigate to the backend directory:
+   ```bash
+   cd ../Backend
+   ```
+
+5. Create a Python virtual environment:
+   ```bash
+   python -m venv env
+   ```
+
+6. Activate the virtual environment:
+   ```bash
+   .\env\Scripts\activate
+   ```
+
+7. Install the required packages:
+   ```bash
+   pip install --no-cache-dir -r requirements.txt 
+   pip install --no-cache-dir -r requirements-dev.txt
+   ```
+
+8. Run the backend server using Uvicorn:
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 5000 --reload
+   ```
