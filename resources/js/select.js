@@ -47,9 +47,10 @@ function createFilterSelect(container, index) {
 	select.dataset.index = index; // Menambahkan atribut data-index
 
 	const options = [
+		{ value: "grayscale", text: "Grayscale" },
 		{ value: "dilasi", text: "Dilasi" },
 		{ value: "boundary_extraction", text: "Boundary Extraction" },
-		{ value: "adaptive_thresholding", text: "Locally Adaptive Thresholding" },
+		{ value: "adaptive_tresholding", text: "Locally Adaptive Tresholding" },
 		{ value: "global_thresholding", text: "Global Thresholding" },
 		// Tambahkan opsi lain jika diperlukan
 	];
