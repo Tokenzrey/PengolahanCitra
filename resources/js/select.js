@@ -49,7 +49,8 @@ function createFilterSelect(container, index) {
 	const options = [
 		{ value: "dilasi", text: "Dilasi" },
 		{ value: "boundary_extraction", text: "Boundary Extraction" },
-		{ value: "adaptive_tresholding", text: "Locally Adaptive Tresholding" },
+		{ value: "adaptive_thresholding", text: "Locally Adaptive Thresholding" },
+		{ value: "global_thresholding", text: "Global Thresholding" },
 		// Tambahkan opsi lain jika diperlukan
 	];
 
