@@ -47,35 +47,9 @@ function createFilterSelect(container, index) {
 	select.dataset.index = index; // Menambahkan atribut data-index
 
 	const options = [
-		{ value: "none", text: "None" },
-		{ value: "grayscale", text: "Grayscale" },
-		{ value: "invert", text: "Invert" },
-		{ value: "median", text: "Median Filter" },
-		{ value: "brightness", text: "Adjust Brightness" },
-		{ value: "histogram_eq", text: "Histogram Equalization" },
-		{ value: "clahe", text: "CLAHE" },
-		{ value: "ahe", text: "Adaptive Histogram Equalization" },
-		{ value: "regional_contrast", text: "Regional Contrast" },
-		{ value: "contrast_adjustment", text: "Contrast Adjustment" },
-		{ value: "gamma_correction", text: "Gamma Correction" },
-		{ value: "thresholding", text: "Thresholding" },
-		{ value: "linear_stretch", text: "Linear Stretch" },
-		{ value: "log_transform", text: "Log Transform" },
-		{ value: "low_pass", text: "Low Pass Filter" },
-		{ value: "high_pass", text: "High Pass Filter" },
-		{ value: "sharpen", text: "Sharpen" },
-		{ value: "edge_enhancement", text: "Edge Enhancement" },
-		{ value: "smoothing", text: "Smoothing" },
-		{ value: "morphological", text: "Morphological Operations" },
-		{ value: "edge_detection", text: "Edge Detection" },
-		{ value: "ideal_lpf", text: "Ideal Low Pass Filter" },
-		{ value: "ideal_hpf", text: "Ideal High Pass Filter" },
-		{ value: "butterworth_lpf", text: "Butterworth Low Pass Filter" },
-		{ value: "butterworth_hpf", text: "Butterworth High Pass Filter" },
-		{ value: "gaussian_lpf", text: "Gaussian Low Pass Filter" },
-		{ value: "gaussian_hpf", text: "Gaussian High Pass Filter" },
-		{ value: "notch_filter", text: "notch filter" },
-		{ value: "homomorphic_filter", text: "homomorphic filter" },
+		{ value: "dilasi", text: "Dilasi" },
+		{ value: "boundary_extraction", text: "Boundary Extraction" },
+		{ value: "adaptive_tresholding", text: "Locally Adaptive Tresholding" },
 		// Tambahkan opsi lain jika diperlukan
 	];
 
