@@ -32,6 +32,7 @@ def handle_filter(image, filter_name, params):
         "boundary_extraction": boundary_extraction,  # Ekstraksi batas
         "global_thresholding": global_thresholding,  # Thresholding global
         "adaptive_thresholding": adaptive_thresholding,  # Thresholding adaptif
+        "dilasi": dilasi, # Dilasi gambar
     }
 
     # Mendapatkan fungsi yang sesuai dengan nama filter
@@ -126,3 +127,23 @@ def adaptive_thresholding(img, params):
         constant_c  # Konstanta yang dikurangi dari hasil rata-rata
     )
     return adaptive_binary
+
+def dilasi(img, params):
+    kernel = np.array([
+        [0, 1, 0],
+        [1, 1, 1],
+        [0, 1, 0]
+    ], dtype=np.uint8)
+
+    iteration = params.get("iteration", 5)
+
+    if len(img.shape) == 2:
+        return cv2.dilate(img, kernel, iterations = iteration)
+
+    # Split the channels
+    b_channel, g_channel, r_channel = cv2.split(img)
+
+    b_channel = cv2.dilate(b_channel, kernel, iterations = iteration)
+    g_channel = cv2.dilate(g_channel, kernel, iterations = iteration)
+    r_channel = cv2.dilate(r_channel, kernel, iterations = iteration)
+    return cv2.merge((b_channel, g_channel, r_channel))
