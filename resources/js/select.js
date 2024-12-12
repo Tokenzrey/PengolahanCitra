@@ -1,58 +1,25 @@
 import { applyFilter } from "./filtering.js";
 
-// Inisialisasi awal dengan satu select
 document.addEventListener("DOMContentLoaded", () => {
-	initializeFilterSelect();
+	initializeSingleFilterSelect();
 });
 
 // Fungsi untuk inisialisasi filter dengan satu select
-function initializeFilterSelect() {
+function initializeSingleFilterSelect() {
 	const container = document.getElementById("selectFilter");
-	// Buat elemen select baru dengan index 1
-	createFilterSelect(container, 1);
+	container.innerHTML = ""; // Hapus elemen select sebelumnya jika ada
+	createSingleFilterSelect(container);
 }
 
-// Fungsi untuk menambahkan filter baru
-export function addFilter() {
-	const container = document.getElementById("selectFilter");
-	const selects = container.querySelectorAll("select");
-
-	if (selects.length < 6) {
-		// Maksimal 6 filter
-		const newIndex = selects.length + 1;
-		createFilterSelect(container, newIndex);
-	} else {
-		alert("Maksimal 6 filter!");
-	}
-}
-
-// Fungsi untuk menghapus filter terakhir
-export function deleteFilter() {
-	const container = document.getElementById("selectFilter");
-	const selects = container.querySelectorAll("select");
-
-	if (selects.length > 1) {
-		// Minimal 1 filter harus ada
-		container.removeChild(selects[selects.length - 1]);
-		applyFilter();
-	} else {
-		alert("Minimal satu filter harus ada!");
-	}
-}
-
-// Fungsi untuk membuat elemen select filter baru
-function createFilterSelect(container, index) {
+// Fungsi untuk membuat elemen select filter
+function createSingleFilterSelect(container) {
 	const select = document.createElement("select");
 	select.className = "mr-5";
-	select.dataset.index = index; // Menambahkan atribut data-index
 
 	const options = [
-		{ value: "grayscale", text: "Grayscale" },
-		{ value: "dilasi", text: "Dilasi" },
-		{ value: "boundary_extraction", text: "Boundary Extraction" },
-		{ value: "adaptive_thresholding", text: "Locally Adaptive Tresholding" },
-		{ value: "global_thresholding", text: "Global Thresholding" },
-		// Tambahkan opsi lain jika diperlukan
+		{ value: "base", text: "Base CNN" },
+		{ value: "edge", text: "Edge Detection" },
+		{ value: "boundary", text: "Boundary Extraction" },
 	];
 
 	options.forEach((option) => {
@@ -62,9 +29,11 @@ function createFilterSelect(container, index) {
 		select.appendChild(opt);
 	});
 
-	// Tambahkan event listener untuk filter change
-	select.addEventListener("change", applyFilter);
+	// Event listener untuk perubahan filter tanpa reload
+	select.addEventListener("change", (event) => {
+		event.preventDefault(); // Cegah reload
+		applyFilter(); // Tembak API untuk memproses gambar dengan filter baru
+	});
 
-	// Tambahkan elemen select ke dalam container
 	container.appendChild(select);
 }
